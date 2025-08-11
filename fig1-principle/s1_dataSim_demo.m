@@ -3,25 +3,47 @@
 % sequence parameters are consistent with HKU MR scanner
 clear
 
-addpath ..\toolbox\
+% ----- Cross-platform path handling -----
+here = fileparts(mfilename('fullpath'));  % folder of this script
+if isempty(here)                          % e.g., if run as a Live Script
+    here = pwd;
+end
+
+% Add toolbox folder (.. / toolbox)
+toolboxDir = fullfile(here, '..', 'toolbox');
+if exist(toolboxDir, 'dir')
+    addpath(toolboxDir);
+else
+    warning('Toolbox folder not found: %s', toolboxDir);
+end
 
 %% load freq offs
 offslist = "user1demo"; % m0 not included
 offsFlag = 1;
-fileID = fopen(offslist(offsFlag)+".txt", 'r');
+
+% If the .txt is next to this script:
+offsFile = fullfile(here, offslist(offsFlag) + ".txt");
+
+% If it lives somewhere else, e.g., in a "data" subfolder:
+% offsFile = fullfile(here, 'data', offslist(offsFlag) + ".txt");
+
+fileID = fopen(char(offsFile), 'r');
+if fileID < 0
+    error('Failed to open offsets file: %s', offsFile);
+end
 data = cell2mat(textscan(fileID, '%f'));
 fclose(fileID);
-offs = reshape(data,[],1);
+offs = reshape(data, [], 1);
 
 %% scanner settings
 b0 = 3;
 gamma = 267.5154109126009;
 gamma_hz = gamma/2/pi;
 
-%% saturation rf pulse 
+%% saturation rf pulse
 pulse1_pwr = 0.8; % in uT
 pulse1_dur = 2; % pulse duration in s
-pulse_cell = {[pulse1_pwr*gamma_hz,0,pulse1_dur]};
+pulse_cell = {[pulse1_pwr*gamma_hz, 0, pulse1_dur]};
 pulse_tpost = 6.5e-3;
 
 %% exchange settings
@@ -33,14 +55,14 @@ guanid = {'guanidine',    1.0,      0.1,       100,             2.0,         100
 noe    = {'noe',          1.3,      0.005,     20,              -3.5,        2000 * 0.0009009/100};
 
 %% cest simulation
-nf = length(offs);
-zspec = zeros(nf,1); % all 5 pool
+nf = numel(offs);
+zspec = zeros(nf,1);     % all 5 pool
 zspec_bak = zeros(nf,1); % water + mt + noe
 
 tic
 for idxoffs = 1:nf
-
     offs_temp = offs(idxoffs);
+
     % all 5 pools: water + mt + noe + amide + guan
     pools = {water; mt; amide; guanid; noe};
     magn = bmesolver(b0, gamma_hz, pools, pulse_cell, pulse_tpost, offs_temp, 0);
@@ -50,11 +72,15 @@ for idxoffs = 1:nf
     pools = {water; mt; noe};
     magn = bmesolver(b0, gamma_hz, pools, pulse_cell, pulse_tpost, offs_temp, 0);
     zspec_bak(idxoffs) = magn(length(pools)*2+1, end, end);
-
 end
-figure();plot(offs,zspec,offs,zspec_bak)
+figure(); plot(offs, zspec, offs, zspec_bak)
 
-%% save data
-fileName = "zspec_"+offslist(offsFlag)+".mat";
-save(fileName,"offs","zspec","zspec_bak",'-mat');
-fprintf("data is saved to "+fileName+"\n")
+%% save data (to the script folder or a subfolder)
+outDir = here;  % or: fullfile(here, 'output')
+if ~exist(outDir, 'dir')
+    mkdir(outDir);
+end
+fileName = "zspec_" + offslist(offsFlag) + ".mat";
+outPath = fullfile(outDir, fileName);
+save(char(outPath), "offs", "zspec", "zspec_bak", '-mat');
+fprintf("data is saved to %s\n", outPath);

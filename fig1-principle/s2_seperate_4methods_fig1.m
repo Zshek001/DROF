@@ -35,7 +35,7 @@ load(char(zspec_file), "offs", "zspec"); % m0 not included
 [nf,~] = size(zspec);
 
 Fig1 = figure(); set(gcf,'Position',[150 50 1200 850]);
-tiledlayout(2,2,"TileSpacing","loose","Padding","loose")
+tiledlayout(3,1,"TileSpacing","loose","Padding","loose")
 yran = [0,1];
 xran = [-8,8];
 xran_plof = [0,8];
@@ -44,34 +44,34 @@ maksiz = 6;
 Linewd = 1.5;
 
 %% (1) LDA
-nexttile
-[Z_ref, LD] = fitting_LDA_demo(offs, zspec, multistart_N);
-indbg = find((offs<=0.8 & offs>=-0.8)|abs(offs)>=7.5);
-indother = find((offs>0.8 | offs<-0.8) & abs(offs)<7.5);
-hold on
-plot(offs(indbg),zspec(indbg),'go','MarkerSize',maksiz,'LineWidth',Linewd);
-plot(offs(indother),zspec(indother),'bo','MarkerSize',maksiz);
-plot(offs,Z_ref,'b',offs,LD,'r-.','LineWidth',Linewd);
-xlabel('offs [ppm]');ylabel('Z-value')
-set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
-lgd = legend('Data (for fitting)','Data (for subtracting)','Z_{fit} (DS)','Diff.','location','southwest','fontsize',legfont);
-lgd.Position(2) = lgd.Position(2) + 0.02;
-ylim(yran); xlim(xran);
-hold off
+% nexttile
+% [Z_ref, LD] = fitting_LDA_demo(offs, zspec, multistart_N);
+% indbg = find((offs<=0.8 & offs>=-0.8)|abs(offs)>=7.5);
+% indother = find((offs>0.8 | offs<-0.8) & abs(offs)<7.5);
+% hold on
+% plot(offs(indbg),zspec(indbg),'go','MarkerSize',maksiz,'LineWidth',Linewd);
+% plot(offs(indother),zspec(indother),'bo','MarkerSize',maksiz);
+% plot(offs,Z_ref,'b',offs,LD,'r-.','LineWidth',Linewd);
+% xlabel('offs [ppm]');ylabel('Z-value')
+% set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
+% lgd = legend('Data (for fitting)','Data (for subtracting)','Z_{fit} (DS)','Diff.','location','southwest','fontsize',legfont);
+% lgd.Position(2) = lgd.Position(2) + 0.02;
+% ylim(yran); xlim(xran);
+% hold off
 
-%% (2) MPLF
-nexttile
-[Z_fit, Z_DS, Z_amide, Z_MT, Z_noe, Z_guan] = fitting_MPLF_demo(offs, zspec, multistart_N);
-hold on
-plot(offs,zspec,'bo','MarkerSize',maksiz);
-plot(offs,Z_fit,'b',offs,Z_DS,'r-.',offs,Z_amide,'g-.',offs,Z_MT,'m-.', ...
-     offs,Z_noe,'c-.',offs,Z_guan,'k-.','LineWidth',Linewd)
-hold off
-xlabel('offs [ppm]');ylabel('Z-value')
-set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
-legend('Data', 'Z_{fit} (5 pools)', 'Water', 'Amide', 'MT','rNOE','CEST@2ppm', 'Location', 'east', ...
-    'fontsize',legfont);
-ylim(yran); xlim(xran);
+%% (1) MPLF
+% nexttile
+% [Z_fit, Z_DS, Z_amide, Z_MT, Z_noe, Z_guan] = fitting_MPLF_demo(offs, zspec, multistart_N);
+% hold on
+% plot(offs,zspec,'bo','MarkerSize',maksiz);
+% plot(offs,Z_fit,'b',offs,Z_DS,'r-.',offs,Z_amide,'g-.',offs,Z_MT,'m-.', ...
+%      offs,Z_noe,'c-.',offs,Z_guan,'k-.','LineWidth',Linewd)
+% hold off
+% xlabel('offs [ppm]');ylabel('Z-value')
+% set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
+% legend('Data', 'Z_{fit} (5 pools)', 'Water', 'Amide', 'MT','rNOE','CEST@2ppm', 'Location', 'east', ...
+%     'fontsize',legfont);
+% ylim(yran); xlim(xran);
 
 % %% (3) PLOF
 % nexttile
@@ -99,7 +99,7 @@ ylim(yran); xlim(xran);
 %     'fontsize',legfont);
 % ylim(yran); xlim(xran_plof);
 
-%% (3) DROF
+%% (2) DROF
 nexttile
 B0 = 3; % T
 FitParam.R1 = 1; % brain ~ 1s @ 3T
@@ -125,7 +125,7 @@ legend('Data (for 1st fitting)','Data (for 2nd fitting)', 'Z_{fit1} (DS+MT+rNOE)
     'fontsize',legfont);
 ylim(yran); xlim(xran);
 
-%% (4) QDROF
+%% (3) QDROF
 nexttile
 B0 = 3; % T
 FitParam.R1 = 1; % brain ~ 1s @ 3T
@@ -138,19 +138,38 @@ indbg = find( offs <= 1 | offs >= 6 );
 indcest = find( offs > 1 & offs < 6 );
 
 %[Z_fit1, Z_fit2, Z_DS, Z_amide, Z_MT, Z_noe, Z_guan] = fitting_MPLF_2step_demo(offs, zspec, multistart_N);
-[Z_fit1, Z_fit2, Z_noe, Z_guan, Z_amide] = fitting_QDROF_demo(offs, zspec, FitParam, multistart_N);
+[Z_fit1Q, Z_fit2Q, Z_noeQ, Z_guanQ, Z_amideQ] = fitting_QDROF_demo(offs, zspec, FitParam, multistart_N);
 
 hold on 
 plot(offs(indbg),zspec(indbg),'go','MarkerSize',maksiz,'LineWidth',Linewd);
 plot(offs(indcest),zspec(indcest),'bo','MarkerSize',maksiz);
-plot(offs,Z_fit1,'b',offs,Z_fit2,'k',offs,Z_noe,'r:',offs,Z_amide,'m:', ...
-     offs,Z_guan,'k:','LineWidth',Linewd)
+plot(offs,Z_fit1Q,'b',offs,Z_fit2Q,'k',offs,Z_noeQ,'r:',offs,Z_amideQ,'m:', ...
+     offs,Z_guanQ,'k:','LineWidth',Linewd)
 hold off
 xlabel('offs [ppm]');ylabel('Z-value')
 set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
 legend('Data (for 1st fitting)','Data (for 2nd fitting)', 'Z_{fit1} (DS+MT+rNOE)', 'Z_{fit2} (5 pools)', 'NOE', 'Amide','CEST@2ppm', 'Location', 'east', ...
     'fontsize',legfont);
 ylim(yran); xlim(xran);
+
+%% (4) difference of DROF and QDROF
+nexttile
+hold on 
+%plot(offs(indbg),zspec(indbg),'go','MarkerSize',maksiz,'LineWidth',Linewd);
+%plot(offs(indcest),zspec(indcest),'bo','MarkerSize',maksiz);
+plot(offs,Z_fit1Q - Z_fit1,'b',offs,Z_fit2Q - Z_fit2,'k',offs,Z_noeQ - Z_noe,'r:',offs,Z_amideQ - Z_amide,'m:', ...
+     offs,Z_guanQ - Z_guan,'k:','LineWidth',Linewd)
+hold off
+xlabel('offs [ppm]');ylabel('Z_{DROF} - Z_{QDROF}')
+set(gca,'XDir','reverse', 'FontWeight', 'bold', 'FontSize', 14)
+% legend('Data (for 1st fitting)','Data (for 2nd fitting)', 'Z_{fit1} (DS+MT+rNOE)', 'Z_{fit2} (5 pools)', 'NOE', 'Amide','CEST@2ppm', 'Location', 'east', ...
+    % 'fontsize',legfont);
+legend('Z_{fit1} (DS+MT+rNOE)', 'Z_{fit2} (5 pools)', 'NOE', 'Amide','CEST@2ppm', 'Location', 'northeast', ...
+    'fontsize',legfont);
+yran_diff = [-0.001,0.01];
+ylim(yran_diff); xlim(xran);
+
+
 
 %% save
 resol = 600;
@@ -539,6 +558,9 @@ function [Z_fit1, Z_fit2, Z_noe, Z_guan, Z_amide] = fitting_QDROF_demo(offs, zsp
     % FitParam.tsat = pulse1_dur; % saturation length (second), 100s to make it steady-state
     % FitParam.Magfield = gamma_hz * B0;
     R1rho_ss = @(par,offs) lorentzMultipool_R1rho_quass(par,offs,FitParam);
+    FitParam.tsat = 10;
+    FitParam.td = FitParam.tsat;
+    R1rho_ss_ss = @(par,offs) lorentzMultipool_R1rho_quass(par,offs,FitParam);
 
     %             1. Water              2. Amide               3. NOE                 4. MT                  5. Guan
     %      Zi     A1    G1    dw1       A2     G2    dw2       A3     G3    dw3       A4     G4    dw4       A5     G5    dw5
@@ -595,12 +617,20 @@ function [Z_fit1, Z_fit2, Z_noe, Z_guan, Z_amide] = fitting_QDROF_demo(offs, zsp
         % end
 
         % fitted curves
+        % Z_fit1 = R1rho_ss(par_bak,offs);
+        % Z_fit2 = R1rho_ss(par,offs);
+        % % Z_bak = R1rho_ss([par(1:4),par(11:13)],offs); % Water + MT
+        % Z_guan = R1rho_ss(par(1:13), offs) - Z_fit2; 
+        % Z_amide = R1rho_ss([par(1:4), par(8:end)], offs) - Z_fit2; 
+        % Z_noe = R1rho_ss([par(1:7),par(11:end)],offs) - Z_fit2; 
+
+        % fitted curves
         Z_fit1 = R1rho_ss(par_bak,offs);
         Z_fit2 = R1rho_ss(par,offs);
-        % Z_bak = R1rho_ss([par(1:4),par(11:13)],offs); % Water + MT
-        Z_guan = R1rho_ss(par(1:13), offs) - Z_fit2; 
-        Z_amide = R1rho_ss([par(1:4), par(8:end)], offs) - Z_fit2; 
-        Z_noe = R1rho_ss([par(1:7),par(11:end)],offs) - Z_fit2; 
+        % Z_bak = R1rho_ss_ss([par(1:4),par(11:13)],offs); % Water + MT
+        Z_guan = R1rho_ss_ss(par(1:13), offs) - R1rho_ss_ss(par,offs); 
+        Z_amide = R1rho_ss_ss([par(1:4), par(8:end)], offs) - R1rho_ss_ss(par,offs); 
+        Z_noe = R1rho_ss_ss([par(1:7),par(11:end)],offs) - R1rho_ss_ss(par,offs); 
 
         % Zamide_DZ_vec(i) = 100*max(Z_bak-Z_amide);
         % Zguan_DZ_vec(i) = 100*max(Z_bak-Z_guan);

@@ -32,6 +32,6 @@ for i = 1:pn
     end
 end
 
-y = (1 - exp(- FitParam.R1 * FitParam.td) - cos2thet*FitParam.R1./R1rho).* exp(-R1rho * FitParam.tsat) + cos2thet * FitParam.R1./R1rho;
+y = ( (1 - exp(- FitParam.R1 * FitParam.td) - cos2thet*FitParam.R1./R1rho).* exp(-R1rho * FitParam.tsat) + cos2thet * FitParam.R1./R1rho ) ./ (1 - exp(-FitParam.R1 * (FitParam.tsat + FitParam.td)));
 
 end

@@ -5,13 +5,25 @@ clear
 close all
 warning off
 
-addpath ..\toolbox\
-addpath ..\toolbox\fitting_main\
+% ----- Cross-platform path handling -----
+here = fileparts(mfilename('fullpath'));  % folder of this script
+if isempty(here)                          % e.g., if run as a Live Script
+    here = pwd;
+end
+
+% Add toolbox folder (.. / toolbox)
+toolboxDir = fullfile(here, '..', 'toolbox');
+fittingmainDir = fullfile(here, '..', 'toolbox', 'fitting_main');
+if exist(toolboxDir, 'dir')
+    addpath(toolboxDir);
+else
+    warning('Toolbox folder not found: %s', toolboxDir);
+end
 
 display_on = 1;
 multistart_N = 5; % times for MultiStart
-fileName = ".\simData_random5000.mat";
-outputfolder = ".\ran5000-fig3\";
+fileName = fullfile(here, '.', 'simData_random5000.mat');
+outputfolder = fullfile(here, '.', 'ran5000-fig3');
 
 if ~exist("outputfolder",'dir')
     mkdir(outputfolder)

@@ -11,7 +11,7 @@ function y = lorentzMultipool_R1rho_quass(p, x, FitParam)
 %      FitParam.Magfield: = B0 [T] * 42.5764 [Hz/T], [Hz]
 %      FitParam.R1: = 1/T1, [Hz], 1 represents no T1 correction
 %      FitParam.tsat: pulse duration, [s]
-%      FitParam.td: relaxation delay, [s]
+%      FitParam.td
 % Output
 %   y: Z-spectra
 

@@ -3,7 +3,7 @@
 % sequence parameters are consistent with HKU MR scanner
 %   using random data set
 clear
-Npixel = 100; % Zspec number
+Npixel = 10; % Zspec number
 rng default % for reproducibility
 
 %% load freq offs
